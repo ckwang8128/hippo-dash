@@ -1,3 +1,4 @@
+#= require dashing-chartjs
 console.log("Yeah! The dashboard has started!")
 
 Dashing.on 'ready', ->

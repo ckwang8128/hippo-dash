@@ -9,6 +9,7 @@
   <title>{{title}}</title>
 
   <!-- The javascript and css are managed by sprockets. The files can be found in the /assets folder-->
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
   <script type="text/javascript" src="/assets/application.js"></script>
   <link rel="stylesheet" href="/assets/application.css">
 
@@ -20,40 +21,17 @@
     <div id="container">
       <div class="gridster">
   <ul>
-    <li data-row="1" data-col="1" data-sizex="2" data-sizey="1">
-      <div data-id="welcome" data-view="Text" data-title="Hello" data-text="This is your shiny new (python powered) dashboard." data-moreinfo="Protip: You can drag the widgets around!"></div>
-    </li>
-
-    <li data-row="1" data-col="3" data-sizex="1" data-sizey="1">
-      <div data-id="synergy" data-view="Meter" data-title="Synergy" data-min="0" data-max="100"></div>
-    </li>
-
-    <li data-row="3" data-col="4" data-sizex="1" data-sizey="1">
-      <div data-id="synergy" data-view="Number" data-title="NumSynergy"></div>
-    </li>
-
-    <li data-row="2" data-col="1" data-sizex="1" data-sizey="1">
+    <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
       <div data-id="clock" data-view="Clock" data-title="Clock"></div>
     </li>
-
-    <li data-row="2" data-col="2" data-sizex="1" data-sizey="1">
-      <div data-view="Image" data-image="/images/dashie.png"></div>
+    <li data-row="1" data-col="2" data-sizex="1" data-sizey="1">
+      <div data-id="inventoryrole" data-view="List" data-title="Inventory Role Count" data_unordered="true"></div>
     </li>
-
-    <li data-row="2" data-col="4" data-sizex="1" data-sizey="2">
-      <div data-id="buzzwords" data-view="List" data-unordered="true" data-title="Buzzwords" data-moreinfo="Absolute ranking of pony preferences"></div>
+    <li data-row="4" data-col="3" data-sizex="3" data-sizey="1">
+      <div data-id="inventorycount" data-view="Graph" data-title="Inventory Total Count" style="background-color:#ff9618"></div>
     </li>
-
-    <li data-row="3" data-col="1" data-sizex="1" data-sizey="1">
-      <div data-id="comments" data-view="comments" data-title="Comments"></div>
-    </li>
-    
-    <li data-row="2" data-col="3" data-sizex="1" data-sizey="1">
-      <div data-id="website_up" data-view="Text" data-title="Website"></div>
-    </li>
-
-    <li data-row="3" data-col="3" data-sizex="2" data-sizey="1">
-      <div data-id="convergence" data-view="Graph" data-title="Convergence" style="background-color:#ff9618"></div>
+    <li data-row="1" data-col="3" data-sizex="2" data-sizey="2">
+      <div data-id="inventorycount" data-view="Pie" data-title="Inventory Distribution"></div>
     </li>
   </ul>
     </div>

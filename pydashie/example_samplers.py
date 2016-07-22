@@ -18,22 +18,6 @@ class SynergySampler(DashieSampler):
         self._last = s['current']
         return s
 
-class BuzzwordsSampler(DashieSampler):
-    def name(self):
-        return 'buzzwords'
-
-    def sample(self):
-        my_little_pony_names = ['Rainbow Dash',
-                                'Blossomforth',
-                                'Derpy',
-                                'Fluttershy',
-                                'Lofty',
-                                'Scootaloo',
-                                'Skydancer']
-        items = [{'label': pony_name, 'value': random.randint(0, 20)} for pony_name in my_little_pony_names]
-        random.shuffle(items)
-        return {'items':items}
-
 class ConvergenceSampler(DashieSampler):
     def name(self):
         return 'convergence'

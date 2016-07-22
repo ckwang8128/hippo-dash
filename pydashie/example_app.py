@@ -1,9 +1,11 @@
 from example_samplers import *
+from samplers.inventory_sampler import InventoryRoleSampler, InventoryCountSampler
 
 def run(app, xyzzy):
     samplers = [
+        InventoryCountSampler(xyzzy, 5),
+        InventoryRoleSampler(xyzzy, 4),
         SynergySampler(xyzzy, 3),
-        BuzzwordsSampler(xyzzy, 2), # 10
         ConvergenceSampler(xyzzy, 1),
     ]
 
@@ -15,11 +17,14 @@ def run(app, xyzzy):
                 use_debugger=True
                 )
     finally:
-        print "Disconnecting clients"
+        print("Disconnecting clients")
         xyzzy.stopped = True
         
-        print "Stopping %d timers" % len(samplers)
+        print("Stopping %d timers" % len(samplers))
         for (i, sampler) in enumerate(samplers):
             sampler.stop()
 
-    print "Done"
+    print("Done")
+
+if __name__ == '__main__':
+    run()

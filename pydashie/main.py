@@ -9,7 +9,11 @@ log = logging.getLogger(__name__)
 
 @app.route("/")
 def main():
-    return render_template('main.html', title='pyDashie')
+    return render_template('main.html', title='Inventory')
+
+@app.route("/small")
+def small():
+    return render_template('small.html', title='pyDashie')
     
 @app.route("/dashboard/<dashlayout>/")
 def custom_layout(dashlayout):
@@ -35,10 +39,12 @@ def javascripts():
 
             'assets/javascripts/jquery.knob.js',
             'assets/javascripts/rickshaw.min.js',
+            'assets/javascripts/dashing-chartjs.coffee',
             #'assets/javascripts/application.coffee',
             'assets/javascripts/app.js',
             #'widgets/clock/clock.coffee',
             'widgets/number/number.coffee',
+            'widgets/pie/pie.coffee',
         ]
         nizzle = True
         if not nizzle:
@@ -60,7 +66,7 @@ def javascripts():
         if nizzle:
             f = open('/tmp/foo.js', 'w')
             for o in output:
-                print >> f, o
+                print(o, end="", file=f)
             f.close()
 
             f = open('/tmp/foo.js', 'rb')
@@ -69,7 +75,6 @@ def javascripts():
             current_app.javascripts = output
         else:
             current_app.javascripts = ''.join(output)
-        
 
     return Response(current_app.javascripts, mimetype='application/javascript')
 
@@ -98,7 +103,7 @@ def widget_html(widget_name):
         f.close()
         return contents
 
-import Queue
+import queue
 
 class Z:
     pass
@@ -113,7 +118,7 @@ xyzzy.stopped = False
 def events():
     if xyzzy.using_events:
         event_stream_port = request.environ['REMOTE_PORT']
-        current_event_queue = Queue.Queue()
+        current_event_queue = queue.Queue()
         xyzzy.events_queue[event_stream_port] = current_event_queue
         current_app.logger.info('New Client %s connected. Total Clients: %s' %
                                 (event_stream_port, len(xyzzy.events_queue)))
@@ -130,17 +135,17 @@ def pop_queue(current_event_queue):
         try:
             data = current_event_queue.get(timeout=0.1)
             yield data
-        except Queue.Empty:
+        except queue.Empty:
             #this makes the server quit nicely - previously the queue threads would block and never exit. This makes it keep checking for dead application
             pass
-        
+
 def purge_streams():
     big_queues = [port for port, queue in xyzzy.events_queue if len(queue) > xyzzy.MAX_QUEUE_LENGTH]
     for big_queue in big_queues:
         current_app.logger.info('Client %s is stale. Disconnecting. Total Clients: %s' %
                                 (big_queue, len(xyzzy.events_queue)))
         del queue[big_queue]
-        
+
 def close_stream(*args, **kwargs):
     event_stream_port = args[2][1]
     del xyzzy.events_queue[event_stream_port]
@@ -148,8 +153,8 @@ def close_stream(*args, **kwargs):
 
 
 def run_sample_app():
-    import SocketServer
-    SocketServer.BaseServer.handle_error = close_stream
+    import socketserver
+    socketserver.BaseServer.handle_error = close_stream
     import example_app
     example_app.run(app, xyzzy)
 

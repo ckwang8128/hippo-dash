@@ -2,7 +2,7 @@
 #= require es5-shim
 #= require batman
 #= require batman.jquery
-
+#= require dashing-chartjs
 
 #Batman.Filters.prettyNumber = (num) ->
 #  num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") unless isNaN(num)
