@@ -9,16 +9,16 @@ except ImportError:
 
 
 setup(
-    name='PyDashie',
-    version='0.1dev',
-    packages=['pydashie',],
+    name='HippoDash',
+    version='0.5',
+    packages=['hippo-dash',],
     install_requires=[
         'Flask >= 0.10',
         'Coffeescript >= 1.0.8',
         'pyScss >= 1.2.0'
     ],
     entry_points={
-      'console_scripts': ['pydashie = pydashie.main:run_sample_app']
+      'console_scripts': ['reddit-hippo-dash = reddit-hippo-dash.main:run_sample_app']
     },
     license='MIT',
     long_description=open('README.rst').read(),

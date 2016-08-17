@@ -11,15 +11,13 @@ class DashieSampler:
         self._timer.stop()
 
     def name(self):
-        '''
-        Child class implements this function
-        '''
+        """
+        """
         return 'UnknownSampler'
 
     def sample(self):
-        '''
-        Child class implements this function
-        '''
+        """
+        """
         return {}
 
     def _send_event(self, widget_id, body):

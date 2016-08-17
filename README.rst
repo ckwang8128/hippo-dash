@@ -20,6 +20,6 @@ OR
 
 And you can run the application by
 
-    pydashie
+    export HIPPO_CONFIG_PATH=example.ini && python main.py
 
 Goto localhost:5000 to view the sample application in action.

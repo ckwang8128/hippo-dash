@@ -2,24 +2,24 @@ import os
 import logging
 from flask import Flask, render_template, Response, send_from_directory, request, current_app
 
-app = Flask(__name__)
+flask_app = Flask(__name__)
 logging.basicConfig()
 log = logging.getLogger(__name__)
 
 
-@app.route("/")
+@flask_app.route("/")
 def main():
     return render_template('main.html', title='Inventory')
 
-@app.route("/small")
+@flask_app.route("/small")
 def small():
     return render_template('small.html', title='pyDashie')
-    
-@app.route("/dashboard/<dashlayout>/")
+
+@flask_app.route("/dashboard/<dashlayout>/")
 def custom_layout(dashlayout):
     return render_template('%s.html'%dashlayout, title='pyDashie')
 
-@app.route("/assets/application.js")
+@flask_app.route("/assets/application.js")
 def javascripts():
     if not hasattr(current_app, 'javascripts'):
         import coffeescript
@@ -44,7 +44,7 @@ def javascripts():
             'assets/javascripts/app.js',
             #'widgets/clock/clock.coffee',
             'widgets/number/number.coffee',
-            'widgets/pie/pie.coffee',
+            'widgets/linechart/linechart.coffee',
         ]
         nizzle = True
         if not nizzle:
@@ -78,7 +78,7 @@ def javascripts():
 
     return Response(current_app.javascripts, mimetype='application/javascript')
 
-@app.route('/assets/application.css')
+@flask_app.route('/assets/application.css')
 def application_css():
     scripts = [
         'assets/stylesheets/application.css',
@@ -88,12 +88,12 @@ def application_css():
         output = output + open(path).read()
     return Response(output, mimetype='text/css')
 
-@app.route('/assets/images/<path:filename>')
+@flask_app.route('/assets/images/<path:filename>')
 def send_static_img(filename):
     directory = os.path.join('assets', 'images')
     return send_from_directory(directory, filename)
 
-@app.route('/views/<widget_name>.html')
+@flask_app.route('/views/<widget_name>.html')
 def widget_html(widget_name):
     html = '%s.html' % widget_name
     path = os.path.join('widgets', widget_name, html)
@@ -105,58 +105,63 @@ def widget_html(widget_name):
 
 import queue
 
-class Z:
-    pass
-xyzzy = Z()
-xyzzy.events_queue = {}
-xyzzy.last_events = {}
-xyzzy.using_events = True
-xyzzy.MAX_QUEUE_LENGTH = 20
-xyzzy.stopped = False
+class EventsManager:
+    def __init__(self):
+        self.events_queue = {}
+        self.last_events = {}
+        self.using_events = True
+        self.MAX_QUEUE_LENGTH = 20
+        self.stopped = False
 
-@app.route('/events')
+
+events_manager = EventsManager()
+
+@flask_app.route('/events')
 def events():
-    if xyzzy.using_events:
+    if events_manager.using_events:
         event_stream_port = request.environ['REMOTE_PORT']
         current_event_queue = queue.Queue()
-        xyzzy.events_queue[event_stream_port] = current_event_queue
+        events_manager.events_queue[event_stream_port] = current_event_queue
         current_app.logger.info('New Client %s connected. Total Clients: %s' %
-                                (event_stream_port, len(xyzzy.events_queue)))
+                                (event_stream_port, len(events_manager.events_queue)))
 
         #Start the newly connected client off by pushing the current last events
-        for event in xyzzy.last_events.values():
+        for event in events_manager.last_events.values():
             current_event_queue.put(event)
         return Response(pop_queue(current_event_queue), mimetype='text/event-stream')
 
-    return Response(xyzzy.last_events.values(), mimetype='text/event-stream')
+    return Response(events_manager.last_events.values(), mimetype='text/event-stream')
 
 def pop_queue(current_event_queue):
-    while not xyzzy.stopped:
+    while not events_manager.stopped:
         try:
             data = current_event_queue.get(timeout=0.1)
             yield data
         except queue.Empty:
-            #this makes the server quit nicely - previously the queue threads would block and never exit. This makes it keep checking for dead application
+            #This makes the server quit nicely - previously the queue threads would block and never exit.
+            #  This makes it keep checking for dead application
             pass
 
 def purge_streams():
-    big_queues = [port for port, queue in xyzzy.events_queue if len(queue) > xyzzy.MAX_QUEUE_LENGTH]
+    big_queues = [port for port, queue in events_manager.events_queue.items()
+                  if queue.qsize() > events_manager.MAX_QUEUE_LENGTH]
+
     for big_queue in big_queues:
         current_app.logger.info('Client %s is stale. Disconnecting. Total Clients: %s' %
-                                (big_queue, len(xyzzy.events_queue)))
+                                (big_queue, events_manager.events_queue.qsize()))
         del queue[big_queue]
 
 def close_stream(*args, **kwargs):
     event_stream_port = args[2][1]
-    del xyzzy.events_queue[event_stream_port]
-    log.info('Client %s disconnected. Total Clients: %s' % (event_stream_port, len(xyzzy.events_queue)))
+    del events_manager.events_queue[event_stream_port]
+    log.info('Client %s disconnected. Total Clients: %s' % (event_stream_port, len(events_manager.events_queue)))
 
 
 def run_sample_app():
     import socketserver
     socketserver.BaseServer.handle_error = close_stream
-    import example_app
-    example_app.run(app, xyzzy)
+    import app
+    app.run(flask_app, events_manager)
 
 
 if __name__ == "__main__":
